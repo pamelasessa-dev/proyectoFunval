@@ -2,31 +2,60 @@ import readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
 
 const rl = readline.createInterface({ input, output });
-// 🚫 No eliminar las líneas de arriba ⬆️
+//Task es un  objeto que tiene las propiedades id, title,completed
+interface Task{
+  id:number;
+  title:string;
+  completed:boolean; //completed al ser booleano indica si la tarea esta terminada(true) o no(false)
+}
 
-// ✍️ Escribe tu código aquí 👇
-const systemName : string = "proyecto";
-const version: number = 0;
-const userName: string = "Pamela";
-/*
-==================================
-  Nombre del sistema  vX.X
-  ¡Bienvenido, [nombre]!
-==================================
+const tareas: Task[] = [];
+//tengo un arreglo que solamente puede contener objetos que respeten la estructura Task(is,title,completed)
 
-const bienvenida : string = "¡Bienvenid@, ";
+let nextId:number = 1;
+// comienzo en 1
 
-const mensaje : string = bienvenida + userName + "!";
-console.log("==================================");
-console.log("  " + systemName + " v" + version);
-console.log("  " + mensaje);
-console.log("  Próxima versión: " + (version + 1)); // op. aritmética
-console.log("==================================");
-*/
+/*-----arrow functions----*/
+
+//agregar tarea
+
+const addTask = (title:string):void =>{
+  //task con las propiedades definidas en la interface 
+  const nuevaTarea: Task ={
+    id:nextId,
+    title:title,
+    completed:false,
+  };
+  tareas.push(nuevaTarea); //se agrega la tarea
+  nextId++; //aumenta el contador de id para que tenga otra id diferente
+}
+//listar tareas
+
+const listTasks = (): void =>{
+  console.log("---Lista de Tareas---");
+  for (let index = 0; index < tareas.length; index++) {
+    console.log(`[${tareas[index].id}] ${tareas[index].title} - ${tareas[index].completed ? "completada" : "pendiente"}`
+
+    );
+      
+    }
+    
+  };
+
+//eliminar tarea
+
+  const removeTask = (): void => {
+  const tareaEliminada = tareas.pop();
+  if(tareaEliminada){
+    console.log("Tarea eliminada " + tareaEliminada.title);
+  }else{ 
+    console.log("no hay tareas");
+
+  }
+};
 
 
-
-const tareas: string[] = [];
+/*---Funcion pricipal----*/
 
 async function prueba() {
   console.log("==================================");
@@ -49,26 +78,17 @@ async function prueba() {
     switch (opcionElegida) {
       
       case "1":
-        const nuevaTarea = await rl.question("Ingresa una tarea: ");
-        tareas.push(nuevaTarea);
+        const title = await rl.question("Ingresa una tarea: ");
+        addTask(title);
         console.log("Tarea agregada con éxito.");
         break;
       
         case "2":
-          const tareaEliminada = tareas.pop();
-          if(tareaEliminada){
-            console.log("Tarea eliminada" + tareaEliminada);
-          }else{
-            console.log("no hay tarea para eliminar");
-          }
+          removeTask();
           break;
 
         case "3":
-          console.log("Lista de Tareas");
-          for(let index =0;index < tareas.length;index++){
-            console.log(index+1) + tareas[index];
-          }
-          
+          listTasks();
           break;
 
         case "4":
