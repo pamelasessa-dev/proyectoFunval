@@ -2,47 +2,37 @@ import readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
 
 const rl = readline.createInterface({ input, output });
-//Task es un  objeto que tiene las propiedades id, title,completed
+
+//----Interface----//
+
 interface Task{
   id:number;
   title:string;
-  completed:boolean; //completed al ser booleano indica si la tarea esta terminada(true) o no(false)
+  completed:boolean; 
 }
 
+//---Variables----//
+
 const tareas: Task[] = [];
-//tengo un arreglo que solamente puede contener objetos que respeten la estructura Task(is,title,completed)
 
 let nextId:number = 1;
-// comienzo en 1
 
 /*-----arrow functions----*/
 
-//agregar tarea
+//---agregar tarea---//
 
 const addTask = (title:string):void =>{
-  //task con las propiedades definidas en la interface 
+  
   const nuevaTarea: Task ={
     id:nextId,
     title:title,
     completed:false,
   };
-  tareas.push(nuevaTarea); //se agrega la tarea
-  nextId++; //aumenta el contador de id para que tenga otra id diferente
+  tareas.push(nuevaTarea); 
+  nextId++; 
 }
-//listar tareas
 
-const listTasks = (): void =>{
-  console.log("---Lista de Tareas---");
-  for (let index = 0; index < tareas.length; index++) {
-    console.log(`[${tareas[index].id}] ${tareas[index].title} - ${tareas[index].completed ? "completada" : "pendiente"}`
-
-    );
-      
-    }
-    
-  };
-
-//eliminar tarea
+//--eliminar tarea--//
 
   const removeTask = (): void => {
   const tareaEliminada = tareas.pop();
@@ -52,6 +42,50 @@ const listTasks = (): void =>{
     console.log("no hay tareas");
 
   }
+};
+
+/* ---listar tareas - Desestructuración---
+
+en vez del for usamos -  
+.map() para transformar
+*/
+
+const listTasks = (): void =>{
+  console.log("---Lista de Tareas---");
+  const tareasTransformadas= tareas.map(task =>{
+    const{ id, title, completed} = task;
+    return `${id} - ${title} - ${completed ? "completada" : "pendiente"}`;
+
+  });
+//.forEach() para recorrer el arreglo de strings resultante 
+// e imprimirlos en consola  
+  tareasTransformadas.forEach(tarea => {
+    console.log(tarea);
+  });
+    
+};
+
+// -- opción para markCompleted
+// Buscar la tarea por su id con find--
+
+const markCompleted = (id: number) => {
+    const task = tareas.find(tarea => tarea.id === id);
+
+    if (task) {
+        task.completed = true; 
+    }
+};
+
+//--funcion para ver solo las tareas pendientes--// 
+
+const filterPending = (): Task[] => {
+    return tareas.filter(tarea => tarea.completed === false);
+};
+
+//--funcion  para ver solo las tareas completadas ---//
+
+const filterCompleted = (): Task[] => {
+    return tareas.filter(tarea => tarea.completed === true);
 };
 
 
@@ -71,7 +105,10 @@ async function prueba() {
     console.log("1. Agregar tarea");
     console.log("2. Eliminar última tarea");
     console.log("3. Listar tareas");
-    console.log("4. Salir");
+    console.log("4. Marcar como completada");
+    console.log("5. Tareas pendientes");
+    console.log("6. Tareas completadas");
+    console.log("7. Salir");
     
     opcionElegida = await rl.question("Elige una opción: ");
     
@@ -92,14 +129,31 @@ async function prueba() {
           break;
 
         case "4":
-          console.log("¡Hasta luego!");
+          const id = await rl.question("Ingresa el número de la tarea: ");
+          markCompleted(Number(id));
           break;
+         case "5":
+          const pendientes = filterPending();
+          console.log("Tareas pendientes");
+          pendientes.forEach(tarea => {
+            console.log(`[${tarea.id}] ${tarea.title} - pendiente`);
+          });
+          break;
+         case "6":
+          const completadas = filterCompleted();
+          console.log("Tareas completadas");
+          completadas.forEach(tarea => {
+            console.log(`[${tarea.id}] ${tarea.title} - completada`);});
+            break;
+          case "7":
+            console.log("Hasta luego");
+            break;
           
           default:
             console.log("Opción no válida.");
           }
 
-    } while (opcionElegida !== "4");
+    } while (opcionElegida !== "7");
 
     rl.close();
 }
