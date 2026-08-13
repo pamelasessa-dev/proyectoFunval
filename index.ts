@@ -2,27 +2,160 @@ import readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
 
 const rl = readline.createInterface({ input, output });
-// 🚫 No eliminar las líneas de arriba ⬆️
 
-// ✍️ Escribe tu código aquí 👇
-const systemName : string = "proyecto";
-const version: number = 0;
-const userName: string = "Pamela";
-/*
-==================================
-  Nombre del sistema  vX.X
-  ¡Bienvenido, [nombre]!
-==================================
+//----Interface----//
+
+interface Task{
+  id:number;
+  title:string;
+  completed:boolean; 
+}
+
+//---Variables----//
+
+const tareas: Task[] = [];
+
+let nextId:number = 1;
+
+/*-----arrow functions----*/
+
+//---agregar tarea---//
+
+const addTask = (title:string):void =>{
+  
+  const nuevaTarea: Task ={
+    id:nextId,
+    title:title,
+    completed:false,
+  };
+  tareas.push(nuevaTarea); 
+  nextId++; 
+}
+
+//--eliminar tarea--//
+
+  const removeTask = (): void => {
+  const tareaEliminada = tareas.pop();
+  if(tareaEliminada){
+    console.log("Tarea eliminada " + tareaEliminada.title);
+  }else{ 
+    console.log("no hay tareas");
+
+  }
+};
+
+/* ---listar tareas - Desestructuración---
+
+en vez del for usamos -  
+.map() para transformar
 */
-const bienvenida : string = "¡Bienvenid@, ";
 
-const mensaje : string = bienvenida + userName + "!";
-console.log("==================================");
-console.log("  " + systemName + " v" + version);
-console.log("  " + mensaje);
-console.log("  Próxima versión: " + (version + 1)); // op. aritmética
-console.log("==================================");
+const listTasks = (): void =>{
+  console.log("---Lista de Tareas---");
+  const tareasTransformadas= tareas.map(task =>{
+    const{ id, title, completed} = task;
+    return `${id} - ${title} - ${completed ? "completada" : "pendiente"}`;
 
-// 🚫 No eliminar las líneas de abajo ⬇️
-rl.close();
+  });
+//.forEach() para recorrer el arreglo de strings resultante 
+// e imprimirlos en consola  
+  tareasTransformadas.forEach(tarea => {
+    console.log(tarea);
+  });
+    
+};
 
+// -- opción para markCompleted
+// Buscar la tarea por su id con find--
+
+const markCompleted = (id: number) => {
+    const task = tareas.find(tarea => tarea.id === id);
+
+    if (task) {
+        task.completed = true; 
+    }
+};
+
+//--funcion para ver solo las tareas pendientes--// 
+
+const filterPending = (): Task[] => {
+    return tareas.filter(tarea => tarea.completed === false);
+};
+
+//--funcion  para ver solo las tareas completadas ---//
+
+const filterCompleted = (): Task[] => {
+    return tareas.filter(tarea => tarea.completed === true);
+};
+
+
+/*---Funcion pricipal----*/
+
+async function prueba() {
+  console.log("==================================");
+  console.log("  proyecto v0");
+  console.log("  ¡Bienvenid@, Pamela!");
+  console.log("  Próxima versión: 1");
+  console.log("==================================");
+  
+  let opcionElegida: string;
+  
+  do {
+    console.log("\n--- MENÚ ---");
+    console.log("1. Agregar tarea");
+    console.log("2. Eliminar última tarea");
+    console.log("3. Listar tareas");
+    console.log("4. Marcar como completada");
+    console.log("5. Tareas pendientes");
+    console.log("6. Tareas completadas");
+    console.log("7. Salir");
+    
+    opcionElegida = await rl.question("Elige una opción: ");
+    
+    switch (opcionElegida) {
+      
+      case "1":
+        const title = await rl.question("Ingresa una tarea: ");
+        addTask(title);
+        console.log("Tarea agregada con éxito.");
+        break;
+      
+        case "2":
+          removeTask();
+          break;
+
+        case "3":
+          listTasks();
+          break;
+
+        case "4":
+          const id = await rl.question("Ingresa el número de la tarea: ");
+          markCompleted(Number(id));
+          break;
+         case "5":
+          const pendientes = filterPending();
+          console.log("Tareas pendientes");
+          pendientes.forEach(tarea => {
+            console.log(`[${tarea.id}] ${tarea.title} - pendiente`);
+          });
+          break;
+         case "6":
+          const completadas = filterCompleted();
+          console.log("Tareas completadas");
+          completadas.forEach(tarea => {
+            console.log(`[${tarea.id}] ${tarea.title} - completada`);});
+            break;
+          case "7":
+            console.log("Hasta luego");
+            break;
+          
+          default:
+            console.log("Opción no válida.");
+          }
+
+    } while (opcionElegida !== "7");
+
+    rl.close();
+}
+
+prueba();
