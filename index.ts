@@ -17,20 +17,40 @@ const tareas: Task[] = [];
 
 let nextId:number = 1;
 
+
+
 /*-----arrow functions----*/
+//---guardar tarea en "DB"---//
+function saveToDB(tarea:Task): Promise<void> {
+  return new Promise((resolve)=>{
+    setTimeout(()=>{
+      console.log(`Tarea ${tarea.title} guardada `);
+      resolve();      
+    },2000);
+  });
+};
 
 //---agregar tarea---//
 
-const addTask = (title:string):void =>{
-  
+const addTask = async (title:string):Promise<boolean> =>{
+  try{
+    if(title === ""){
+      throw new Error("Debes ingresar una tarea para poder continuar.");
+    }
   const nuevaTarea: Task ={
     id:nextId,
     title:title,
     completed:false,
   };
+  await saveToDB(nuevaTarea);
   tareas.push(nuevaTarea); 
-  nextId++; 
-}
+  nextId++;
+  return true;
+}catch(error){
+  console.log(error);
+  return false;
+} 
+};
 
 //--eliminar tarea--//
 
@@ -116,8 +136,11 @@ async function prueba() {
       
       case "1":
         const title = await rl.question("Ingresa una tarea: ");
-        addTask(title);
-        console.log("Tarea agregada con éxito.");
+        const guardada = await addTask(title);
+        if(guardada) {
+          console.log("Tienes una nueva tarea por hacer");
+        }
+        
         break;
       
         case "2":
