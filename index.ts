@@ -54,16 +54,16 @@ const addTask = async (title:string):Promise<boolean> =>{
 
 //--eliminar tarea--//
 
-  const removeTask = (): void => {
-  const tareaEliminada = tareas.pop();
-  if(tareaEliminada){
-    console.log("Tarea eliminada " + tareaEliminada.title);
-  }else{ 
-    console.log("no hay tareas");
+const removeTask = (id: number): void => {
+  const indice = tareas.findIndex(tarea => tarea.id === id);
 
+  if (indice !== -1) {
+    const tareaEliminada = tareas.splice(indice, 1)[0];
+    console.log("Tarea eliminada: " + tareaEliminada.title);
+  } else {
+    console.log("No se encontró una tarea con ese id.");
   }
 };
-
 /* ---listar tareas - Desestructuración---
 
 en vez del for usamos -  
@@ -123,7 +123,7 @@ async function prueba() {
   do {
     console.log("\n--- MENÚ ---");
     console.log("1. Agregar tarea");
-    console.log("2. Eliminar última tarea");
+    console.log("2. Eliminar tarea");
     console.log("3. Listar tareas");
     console.log("4. Marcar como completada");
     console.log("5. Tareas pendientes");
@@ -143,38 +143,41 @@ async function prueba() {
         
         break;
       
-        case "2":
-          removeTask();
-          break;
+      case "2":
+        const idEliminar = await rl.question("Ingresa el id de la tarea que quieres eliminar: ");
+        removeTask(Number(idEliminar));
+        break;
+      
+      case "3":
+        listTasks();
+        break;
 
-        case "3":
-          listTasks();
-          break;
-
-        case "4":
-          const id = await rl.question("Ingresa el número de la tarea: ");
-          markCompleted(Number(id));
-          break;
-         case "5":
-          const pendientes = filterPending();
-          console.log("Tareas pendientes");
-          pendientes.forEach(tarea => {
-            console.log(`[${tarea.id}] ${tarea.title} - pendiente`);
-          });
-          break;
-         case "6":
+      case "4":
+        const id = await rl.question("Ingresa el número de la tarea: ");
+        markCompleted(Number(id));
+        break;
+      
+        case "5":
+        const pendientes = filterPending();
+        console.log("Tareas pendientes");
+        pendientes.forEach(tarea => {
+          console.log(`[${tarea.id}] ${tarea.title} - pendiente`);
+        });
+        break;
+      
+        case "6":
           const completadas = filterCompleted();
           console.log("Tareas completadas");
           completadas.forEach(tarea => {
             console.log(`[${tarea.id}] ${tarea.title} - completada`);});
             break;
-          case "7":
-            console.log("Hasta luego");
-            break;
+        case "7":
+          console.log("Hasta luego");
+          break;
           
-          default:
-            console.log("Opción no válida.");
-          }
+        default:
+          console.log("Opción no válida.");
+        }
 
     } while (opcionElegida !== "7");
 
